@@ -1,1 +1,0 @@
-Bento white minimal
