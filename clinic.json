@@ -1,0 +1,523 @@
+{
+  "project_name": "DentalLead_India_LandingPage",
+  "deliverable": "Single-page lead generation landing page (Next.js 14, App Router). No routing beyond '/' — everything lives on one scroll.",
+
+  "north_star": "One page. One goal. Get the visitor's phone number or a WhatsApp tap. Every pixel, word, and millisecond of load time serves this goal.",
+
+  "tech_stack": {
+    "framework": "Next.js 14 (App Router)",
+    "styling": "TailwindCSS v3 with JIT + `cn()` via `clsx` + `tailwind-merge`",
+    "animations": "Framer Motion v11 — `useInView` for scroll reveals, `AnimatePresence` for form success state. Max duration 350ms. Nothing bouncy — this is medical.",
+    "form": "React Hook Form + Zod validation. No full page reload on submit.",
+    "analytics": "GA4 via `next/third-parties`. Custom events: `whatsapp_click`, `lead_form_submit`, `cta_click`",
+    "images": "Next.js `<Image>` component — WebP/AVIF output, explicit dimensions, lazy below fold",
+    "fonts": "Self-hosted via `next/font` (no render-blocking Google Fonts requests)"
+  },
+
+  "performance_targets": {
+    "LCP": "< 2.5s on 4G mobile",
+    "CLS": "< 0.1 (all images have explicit width/height)",
+    "INP": "< 200ms",
+    "lighthouse_mobile": ">= 90 performance, 100 SEO, >= 95 accessibility"
+  },
+
+  "design_language": {
+    "philosophy": "Premium clinical trust. Feels like a private hospital's digital presence — clean, modern, reassuring. Not a marketplace. Not a government portal. A single expert's practice.",
+    "color_tokens": {
+      "--color-brand": "#0D9488",
+      "--color-brand-dark": "#0F766E",
+      "--color-brand-light": "#CCFBF1",
+      "--color-brand-surface": "#F0FDFA",
+      "--color-accent": "#F59E0B",
+      "--color-accent-hover": "#D97706",
+      "--color-text-primary": "#1E293B",
+      "--color-text-secondary": "#64748B",
+      "--color-bg": "#F8FAFC",
+      "--color-surface": "#FFFFFF",
+      "--color-border": "#E2E8F0",
+      "--color-success": "#22C55E",
+      "--color-error": "#EF4444"
+    },
+    "typography": {
+      "display": "Plus Jakarta Sans (700, 800) — all headings, hero text",
+      "body": "Open Sans (400, 500, 600) — all body copy, labels, FAQs",
+      "scale": {
+        "hero_h1": "clamp(1.875rem, 5vw, 3rem) / font-weight: 800",
+        "section_h2": "clamp(1.5rem, 3vw, 2.25rem) / font-weight: 700",
+        "card_h3": "1.125rem / font-weight: 600",
+        "body": "1rem / line-height: 1.75",
+        "small": "0.875rem"
+      }
+    },
+    "spacing": "8px base unit. Section vertical padding: py-16 mobile, py-24 desktop.",
+    "border_radius": {
+      "cards": "rounded-xl (12px)",
+      "buttons": "rounded-full (pill — pill CTAs convert better)",
+      "inputs": "rounded-lg (8px)",
+      "badges": "rounded-full"
+    },
+    "shadows": {
+      "card": "shadow-[0_4px_24px_rgba(15,118,110,0.08)]",
+      "cta_button": "shadow-[0_4px_16px_rgba(13,148,136,0.35)] hover:shadow-[0_6px_24px_rgba(13,148,136,0.45)]",
+      "form_card": "shadow-[0_8px_32px_rgba(15,118,110,0.12)]"
+    }
+  },
+
+  "page_sections": [
+    {
+      "id": "sticky_nav",
+      "type": "Navigation",
+      "behavior": "Sticky top. Transparent on hero, solid white with border-b on scroll (use `useScroll` + `motion.header`).",
+      "left": "Logo (SVG wordmark or clinic name in Plus Jakarta Sans 700)",
+      "right_desktop": [
+        "Services (anchor scroll)",
+        "About Doctor (anchor scroll)",
+        "Reviews (anchor scroll)",
+        "Book Free Consultation → (pill CTA, brand color)"
+      ],
+      "right_mobile": "Phone icon (click-to-call) + WhatsApp icon (both tappable) + hamburger for nav links",
+      "implementation_note": "The 'Book Free Consultation' button must be visible on desktop navbar at ALL times including hero overlap. Use z-index carefully."
+    },
+    {
+      "id": "hero",
+      "type": "Hero Section",
+      "order": 1,
+      "layout": "Two-column on desktop (text left 55%, form right 45%), single column on mobile (text → form stacked)",
+      "background": "Subtle brand-surface (#F0FDFA) with an extremely faint dot-grid pattern (2px dots, 24px spacing, opacity 0.4)",
+      "content": {
+        "eyebrow": "Trusted by 8,200+ Patients in [City] ⭐ 4.9",
+        "h1": "Painless Dental Care You Can Trust",
+        "subheadline": "Advanced dentistry with transparent pricing and same-day appointments. Your confident smile is one call away.",
+        "trust_bar": {
+          "items": [
+            "✓ ISO 9001 Certified",
+            "✓ 100% Sterilized Clinic",
+            "✓ Pain-Free Procedures",
+            "✓ Same-Day Appointments"
+          ],
+          "style": "Horizontal chip row on desktop. 2x2 grid on mobile. Each chip: white bg, brand border, small checkmark icon in brand color."
+        },
+        "secondary_cta": {
+          "label": "Chat on WhatsApp",
+          "icon": "WhatsApp SVG icon (green)",
+          "style": "Outlined button, white bg, WhatsApp green border and text"
+        }
+      },
+      "hero_visual": {
+        "desktop": "Doctor professional headshot OR high-quality tooth/smile illustration. If photo: rounded-2xl, brand-colored border ring, positioned overlapping the background pattern.",
+        "mobile": "Hidden (text + form only — do not show image on mobile to save LCP budget)"
+      },
+      "form_card": {
+        "headline": "Book Your Free Consultation",
+        "subheadline": "15% off your first checkup — Only 4 slots left today",
+        "style": "White card, brand shadow, position: sticky on desktop (scrolls with user until form exits viewport)",
+        "urgency_badge": "⏰ 4 slots available today — small pill badge above headline, amber background",
+        "fields": [
+          {
+            "name": "full_name",
+            "type": "text",
+            "label": "Your Name",
+            "placeholder": "Rahul Sharma",
+            "required": true
+          },
+          {
+            "name": "phone",
+            "type": "tel",
+            "label": "WhatsApp Number",
+            "placeholder": "+91 98765 43210",
+            "required": true,
+            "validation": "10-digit Indian mobile (starts with 6–9)",
+            "micro_copy": "We'll confirm your slot on WhatsApp within 30 minutes."
+          },
+          {
+            "name": "concern",
+            "type": "select",
+            "label": "Main Concern",
+            "options": [
+              "Tooth Pain / Sensitivity",
+              "Root Canal",
+              "Dental Implants",
+              "Teeth Whitening",
+              "Braces / Aligners",
+              "Child's Check-up",
+              "General Cleaning",
+              "Other"
+            ]
+          }
+        ],
+        "submit_cta": "Get My Free Appointment →",
+        "submit_style": "Full-width pill, brand color fill, accent shadow, slight scale transform on hover",
+        "post_submit": {
+          "trigger": "Replace form content with AnimatePresence success state",
+          "content": "✅ Booked! We'll WhatsApp you within 30 minutes. / 'Add to WhatsApp: +91 XXXXX' button"
+        },
+        "privacy_note": "🔒 Your number is never shared or sold.",
+        "api_route": "POST /api/leads — Zod validate → CRM webhook → respond {success: true}"
+      }
+    },
+    {
+      "id": "social_proof_bar",
+      "type": "Trust Statistics Bar",
+      "order": 2,
+      "style": "White bg, top+bottom brand-light border. Full-width. 4 stats separated by vertical dividers.",
+      "stats": [
+        { "value": "8,200+", "label": "Patients Treated" },
+        { "value": "15 Yrs", "label": "Clinical Experience" },
+        { "value": "4.9 ⭐", "label": "Google Rating" },
+        { "value": "ISO", "label": "9001 Certified" }
+      ],
+      "animation": "Count-up animation on each number when stat bar enters viewport (Framer Motion + custom counter hook). Triggers once."
+    },
+    {
+      "id": "services",
+      "type": "Services Grid",
+      "order": 3,
+      "section_label": "What We Treat",
+      "h2": "Expert Care for Every Dental Need",
+      "subheadline": "From routine cleanings to full smile makeovers — all under one roof.",
+      "grid": "3 columns desktop, 2 columns tablet, 1 column mobile",
+      "cards": [
+        {
+          "service": "Root Canal Treatment",
+          "icon": "tooth SVG",
+          "hook": "Pain-free. Done in 60 minutes.",
+          "description": "Advanced rotary instruments and local anaesthesia for a completely comfortable experience.",
+          "starting_price": "₹3,500",
+          "cta": "Learn More",
+          "cta_action": "Smooth scroll to FAQ item about root canal"
+        },
+        {
+          "service": "Dental Implants",
+          "icon": "implant SVG",
+          "hook": "Permanent teeth that feel natural.",
+          "description": "Titanium implants with a 98% success rate. Surgical and prosthetic under one roof.",
+          "starting_price": "₹18,000",
+          "badge": "Most Popular",
+          "cta": "Book Consultation"
+        },
+        {
+          "service": "Teeth Whitening",
+          "icon": "sparkle SVG",
+          "hook": "3–4 shades brighter in one visit.",
+          "description": "In-chair laser whitening and take-home kits. Safe for enamel.",
+          "starting_price": "₹4,000",
+          "cta": "Learn More"
+        },
+        {
+          "service": "Braces & Aligners",
+          "icon": "smile SVG",
+          "hook": "Invisible options available.",
+          "description": "Metal braces, ceramic braces, and clear aligner therapy for all ages.",
+          "starting_price": "₹25,000",
+          "cta": "Book Free Assessment"
+        },
+        {
+          "service": "Kids Dentistry",
+          "icon": "star SVG",
+          "hook": "Fun, gentle, and fear-free.",
+          "description": "Child-friendly environment with painless techniques. First visit free for children under 10.",
+          "starting_price": "Free first visit",
+          "cta": "Book Now"
+        },
+        {
+          "service": "General Check-up",
+          "icon": "clipboard SVG",
+          "hook": "Full dental exam + X-rays.",
+          "description": "Comprehensive oral health screening with digital X-rays and a personalised treatment plan.",
+          "starting_price": "₹299",
+          "cta": "Book Now"
+        }
+      ],
+      "card_style": {
+        "base": "White bg, rounded-xl, brand-shadow, p-6, hover: translate-y-[-4px] transition-all duration-300",
+        "icon_container": "w-12 h-12 rounded-xl bg-brand-light flex items-center justify-center mb-4",
+        "price": "text-brand font-semibold text-sm mt-2",
+        "badge": "Absolute top-right: amber bg, white text, rounded-full, text-xs",
+        "cta": "text-brand font-medium text-sm with arrow icon, hover underline"
+      },
+      "animation": "Staggered card reveal on scroll (Framer Motion, 0.1s delay per card, slide up + fade in)"
+    },
+    {
+      "id": "doctor",
+      "type": "Meet the Doctor",
+      "order": 4,
+      "background": "brand-surface (#F0FDFA)",
+      "layout": "50/50 split desktop. Doctor image left, credentials right. Reverse on mobile (text first).",
+      "image": {
+        "style": "Rounded-2xl, slight brand ring border, drop shadow. Prefer in-clinic shot (shows environment trust).",
+        "alt": "Dr [Name], [Qualification], [City]"
+      },
+      "content": {
+        "eyebrow": "Your Doctor",
+        "name": "Dr. [Full Name]",
+        "qualifications": "BDS (Gold Medalist), MDS – Oral & Maxillofacial Surgery, FICOI (USA)",
+        "credentials_chips": [
+          "IDA Member",
+          "15+ Years Experience",
+          "5,000+ Cases",
+          "AIIMS Trained"
+        ],
+        "personal_statement": "Max 50 words. First person. Empathetic. E.g.: 'I started this clinic because I believe good dental health should never be held back by fear or hidden costs. Every patient gets my personal attention.'",
+        "media_badges": ["As Seen in: Times of India", "Featured Expert: Hindustan Times"],
+        "cta": "Book a Consultation with Me →"
+      },
+      "animation": "Doctor image slides in from left, content fades in from right on scroll enter."
+    },
+    {
+      "id": "before_after",
+      "type": "Smile Transformations",
+      "order": 5,
+      "h2": "Real Patients. Real Results.",
+      "subheadline": "Browse before & after photos from our actual patients (shared with consent).",
+      "implementation": {
+        "desktop": "3-column grid of before/after cards",
+        "mobile": "Horizontal swipeable carousel (`overflow-x: auto`, snap scrolling, hide scrollbar)",
+        "card_content": [
+          "Treatment label (e.g. 'Dental Implants — 3 months')",
+          "Before image (grayscale filter)",
+          "After image (full color)",
+          "5-star rating",
+          "Patient first name + city (e.g. 'Priya R., Bengaluru')"
+        ],
+        "hover_interaction": "Card hover shows a before/after slider (CSS clip-path drag). On mobile: tap card to toggle between before/after."
+      },
+      "consent_label": "All photos shared with patient consent.",
+      "cta_below": "See Your Transformation — Book Free Consultation"
+    },
+    {
+      "id": "testimonials",
+      "type": "Patient Testimonials",
+      "order": 6,
+      "h2": "What Our Patients Say",
+      "google_rating_display": {
+        "score": "4.9",
+        "count": "312 reviews",
+        "source": "Google",
+        "style": "Prominent badge: Google logo + stars + score + review count. Links to GBP."
+      },
+      "video_testimonials": {
+        "count": 3,
+        "implementation": "YouTube/Vimeo lite embed (loads iframe only on click — use `@justinribeiro/lite-youtube` or custom click-to-load). Thumbnail from YouTube API.",
+        "overlay_elements": ["Patient name", "Concern treated", "Star rating badge"],
+        "mobile_layout": "Horizontal swipeable row"
+      },
+      "written_testimonials": {
+        "count": "Show 3 initially, 'Show More' reveals 3 more",
+        "card_content": ["Star rating (5 stars SVG)", "Quote text (max 100 words)", "Patient name + city", "Google 'G' logo + 'Verified Review' tag"],
+        "source": "Pulled from Google Places API at build time (Next.js ISR, revalidate every 24 hours)"
+      }
+    },
+    {
+      "id": "pricing",
+      "type": "Pricing Transparency",
+      "order": 7,
+      "background": "white",
+      "h2": "Honest, Upfront Pricing",
+      "subheadline": "No surprises. No hidden fees. Know your cost before you visit.",
+      "pricing_table": {
+        "style": "Clean table: Treatment | Starting At | Duration | EMI Available",
+        "rows": [
+          ["Dental Check-up + X-Ray", "₹299", "30 min", "—"],
+          ["Root Canal Treatment", "₹3,500", "60 min", "✓"],
+          ["Tooth Extraction", "₹800", "30 min", "—"],
+          ["Teeth Whitening", "₹4,000", "90 min", "✓"],
+          ["Dental Implants", "₹18,000", "2 visits", "✓"],
+          ["Clear Aligners", "₹45,000", "12–18 mo", "✓"],
+          ["Metal Braces", "₹25,000", "12–18 mo", "✓"]
+        ],
+        "note": "'Starting at' pricing varies by case complexity. Exact quote provided after free consultation."
+      },
+      "emi_section": {
+        "headline": "Affordable EMIs Available",
+        "partners": ["Bajaj Finserv", "HDFC EMI", "ZestMoney"],
+        "copy": "0% interest EMI options available on treatments above ₹10,000. Ask us during your consultation."
+      },
+      "insurance": "We accept cashless insurance from Star Health, Niva Bupa, and HDFC Ergo.",
+      "cta": "Get an Exact Quote — Book Free Consultation"
+    },
+    {
+      "id": "faq",
+      "type": "FAQ — Objection Handling",
+      "order": 8,
+      "background": "brand-surface",
+      "h2": "Your Questions, Answered Honestly",
+      "implementation": "Accordion component. One open at a time. Smooth expand animation (Framer Motion height animation).",
+      "schema": "FAQPage JSON-LD injected via Next.js `<Script>` with `strategy='afterInteractive'`",
+      "questions": [
+        {
+          "q": "Is root canal treatment really painful?",
+          "a": "No. We use advanced rotary instruments and triple-action local anaesthesia. Most patients report feeling nothing during the procedure. You may feel mild sensitivity for 24–48 hours after, which resolves with standard pain relief."
+        },
+        {
+          "q": "How much do dental implants cost in [City]?",
+          "a": "Our implants start at ₹18,000 per tooth, which includes the implant, abutment, and crown. The total varies by the number of implants and material chosen. We offer 0% EMI through Bajaj Finserv — no down payment required."
+        },
+        {
+          "q": "How do I know your clinic is hygienic?",
+          "a": "We use Class B Autoclave sterilization (hospital-grade) for all instruments, disposable kits for each patient, and follow strict cross-contamination protocols. Our clinic is ISO 9001:2015 certified — inspection reports are available on request."
+        },
+        {
+          "q": "Can I get a same-day appointment?",
+          "a": "Yes, we reserve daily slots for same-day and emergency appointments. Submit the form on this page and our team will call you within 30 minutes to confirm your slot."
+        },
+        {
+          "q": "Do you accept dental insurance?",
+          "a": "We accept cashless claims from Star Health, Niva Bupa, and HDFC Ergo. For other insurers, we provide detailed receipts and treatment codes for your reimbursement claim."
+        },
+        {
+          "q": "What are your clinic hours?",
+          "a": "Monday to Saturday: 9:00 AM – 8:00 PM. Sunday: 10:00 AM – 2:00 PM (emergency consultations only). We're closed on national holidays."
+        },
+        {
+          "q": "Is teeth whitening safe for my enamel?",
+          "a": "Yes, when performed by a qualified dentist. We use clinically approved hydrogen peroxide concentrations. We assess your enamel health before every whitening session and won't proceed if there's a risk of sensitivity."
+        }
+      ]
+    },
+    {
+      "id": "final_cta_band",
+      "type": "Conversion Band",
+      "order": 9,
+      "background": "brand gradient: from-teal-600 to-teal-700 (brand color)",
+      "content": {
+        "h2": "Your Smile Deserves the Best Care",
+        "subheadline": "Join 8,200+ patients who've transformed their smiles. Your free consultation takes 2 minutes to book.",
+        "ctas": [
+          {
+            "label": "Book Free Consultation",
+            "style": "White bg, brand text, pill, hover: brand-light bg"
+          },
+          {
+            "label": "Chat on WhatsApp",
+            "style": "Transparent bg, white border+text, WhatsApp icon, pill"
+          }
+        ]
+      },
+      "urgency": "⏰ Limited free slots — refreshed daily."
+    },
+    {
+      "id": "location_contact",
+      "type": "Location & Contact",
+      "order": 10,
+      "layout": "Two columns desktop. Map left (60%), contact details right (40%).",
+      "map": {
+        "implementation": "Google Maps embed iframe, lazy-loaded (click-to-activate on mobile to avoid LCP hit)",
+        "style": "Rounded-xl, brand border"
+      },
+      "contact_details": [
+        "Full clinic address (NAP — must match Google Business Profile exactly)",
+        "Phone (click-to-call `<a href='tel:+91...'>`)",
+        "WhatsApp (click-to-chat link)",
+        "Email (click-to-mailto)",
+        "Clinic hours table (show Open/Closed badge based on current time using client-side JS)"
+      ],
+      "google_business_link": "Leave Us a Google Review → (opens GBP review compose URL)"
+    },
+    {
+      "id": "footer",
+      "type": "Footer",
+      "order": 11,
+      "content": {
+        "col_1": "Logo + 1-line brand description + social icons (Instagram, Facebook, YouTube)",
+        "col_2": "Quick Links: Home, Services, About, Book Appointment, Blog",
+        "col_3": "Contact: Address, Phone, WhatsApp, Email",
+        "col_4": "Certifications: ISO badge, IDA Member badge, NABH (if applicable)"
+      },
+      "bottom_bar": "© [Year] [Clinic Name]. All rights reserved. | Privacy Policy | Disclaimer | Made with ❤️ in [City]",
+      "disclaimer": "Small gray text: 'Results may vary. All patient photos shared with consent. This website is for informational purposes only and does not constitute medical advice.'"
+    }
+  ],
+
+  "whatsapp_fab": {
+    "description": "Floating Action Button — WhatsApp",
+    "visible_on": "All viewports, always",
+    "position": "fixed bottom-6 right-6 z-50",
+    "style": "Round button (56px), WhatsApp green bg (#25D366), white WhatsApp SVG icon, brand shadow",
+    "hover": "Scale 1.1, shadow grows",
+    "link": "https://wa.me/91XXXXXXXXXX?text=Hi%2C+I'd+like+to+book+a+free+dental+consultation",
+    "ga4_event": "whatsapp_click",
+    "mobile_note": "On mobile, add a small pulsing ring animation to draw attention (2s loop, once per session via sessionStorage flag)"
+  },
+
+  "api_route_spec": {
+    "path": "app/api/leads/route.ts",
+    "method": "POST",
+    "input_schema": {
+      "full_name": "string, min 2 chars",
+      "phone": "string, matches /^[6-9]\\d{9}$/",
+      "concern": "string, one of the dropdown options",
+      "utm_source": "string | null",
+      "utm_medium": "string | null",
+      "utm_campaign": "string | null"
+    },
+    "validation": "Zod schema. Return 422 with field errors on failure.",
+    "on_success": [
+      "POST to CRM_WEBHOOK_URL (env var) with full payload + timestamp",
+      "Optionally POST to WhatsApp Business API to notify clinic staff",
+      "Return { success: true, message: 'We will contact you within 30 minutes.' }"
+    ],
+    "on_error": "Return { success: false, error: 'Something went wrong. Please try calling us directly.' } with clinic phone number."
+  },
+
+  "seo_metadata": {
+    "title": "[Clinic Name] — Best Dentist in [City] | Free Consultation",
+    "description": "Looking for a trusted dentist in [City]? [Clinic Name] offers painless dental care with transparent pricing. ⭐ 4.9 Google Rating | 312 Reviews. Book your FREE consultation today.",
+    "og_image": "1200x630px image with doctor photo + '4.9 ⭐ Google Rating' + clinic name. Generated as static asset.",
+    "canonical": "https://[domain]/",
+    "schema_types": ["LocalBusiness", "MedicalClinic", "Dentist", "FAQPage", "AggregateRating"],
+    "implementation": "All meta via Next.js `generateMetadata()`. JSON-LD via `<script type='application/ld+json'>` in layout.tsx."
+  },
+
+  "environment_variables": [
+    "NEXT_PUBLIC_CLINIC_NAME",
+    "NEXT_PUBLIC_CLINIC_PHONE",
+    "NEXT_PUBLIC_WHATSAPP_NUMBER",
+    "NEXT_PUBLIC_CITY",
+    "NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL",
+    "NEXT_PUBLIC_GA4_MEASUREMENT_ID",
+    "CRM_WEBHOOK_URL",
+    "GOOGLE_PLACES_API_KEY",
+    "GOOGLE_PLACES_PLACE_ID"
+  ],
+
+  "accessibility_requirements": {
+    "wcag": "AA",
+    "checklist": [
+      "All color contrasts >= 4.5:1 for body text, >= 3:1 for large text",
+      "All interactive elements keyboard-navigable with visible focus rings",
+      "ARIA labels on icon-only buttons (WhatsApp FAB, close buttons)",
+      "Form inputs linked to labels via htmlFor/id",
+      "Error messages linked to inputs via aria-describedby",
+      "Skip-to-content link as first focusable element",
+      "All images have descriptive alt text",
+      "Accordion FAQ uses proper ARIA roles (role='button', aria-expanded, aria-controls)"
+    ]
+  },
+
+  "component_file_structure": {
+    "app": "app/page.tsx (imports all sections)",
+    "sections": [
+      "components/sections/HeroSection.tsx",
+      "components/sections/SocialProofBar.tsx",
+      "components/sections/ServicesGrid.tsx",
+      "components/sections/MeetDoctor.tsx",
+      "components/sections/BeforeAfter.tsx",
+      "components/sections/Testimonials.tsx",
+      "components/sections/PricingTable.tsx",
+      "components/sections/FAQ.tsx",
+      "components/sections/FinalCTABand.tsx",
+      "components/sections/LocationContact.tsx",
+      "components/sections/Footer.tsx"
+    ],
+    "shared": [
+      "components/ui/LeadForm.tsx (reusable form with full RHF + Zod)",
+      "components/ui/WhatsAppFAB.tsx",
+      "components/ui/StickyNav.tsx",
+      "components/ui/ServiceCard.tsx",
+      "components/ui/TestimonialCard.tsx",
+      "components/ui/FAQAccordion.tsx",
+      "components/ui/CountUpStat.tsx"
+    ],
+    "api": "app/api/leads/route.ts"
+  }
+}
